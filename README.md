@@ -64,17 +64,17 @@ Not that you will have to run both commands every time you change the Dockerfile
 
 1. Run the following terminal command to read the Dockerfile and create an image named `my_first_image`:
 
-    ```
-    docker build -t my_first_image .
-    ```
+```bash
+docker build -t my_first_image .
+```
 
     The `.` at the end of the command means "look for the Dockerfile in this directory".
 
 1. Run the following to start a container from the image you created:
 
-    ```
-    docker run -i -v $(pwd):/opt -p 8080:8080 my_first_image
-    ```
+```bash
+docker run -i -v $(pwd):/opt -p 8080:8080 my_first_image
+```
 
 The `-i` argument specifies that the container will be interactive, which we need to do because our container will run `bash`.
 
@@ -89,9 +89,9 @@ Run `python -V` to check your Python version. You should see the output `3.7.13`
 
 And since the `-v` argument makes your source code visible to your container, you can just run your app from the bash prompt:
 
-    ```
-    python myapp.py
-    ```
+```bash
+python myapp.py
+```
 
 should print "Hello world".
 
@@ -100,11 +100,11 @@ should print "Hello world".
 
 The example Dockerfile in this repository contains 3 lines of code, excluding the comments:
 
-    ```
-    FROM python:3.7.13-buster
-    WORKDIR /opt
-    CMD /bin/bash
-    ```
+```
+FROM python:3.7.13-buster
+WORKDIR /opt
+CMD /bin/bash
+```
 
 The first line says this image will be based on a public image called `python:3.7.13-buster`, available on the Docker site. That image gives us Python 3.7.13 on a Debian Buster virtual machine. There are hundreds of existing images to choose from, including most Python versions.
 
@@ -121,11 +121,11 @@ Then run your usual commands (for example, `python myapp.py`) in the terminal ru
 
 When you're finished and want to share your app, send the Dockerfile along with your source code to the person you want to share the app with. The recipient will need to run the same commands as you to run the app. In general, you'll change the Dockerfile so when a container starts, it starts the app directly, instead of running `bash`:
 
-    ```
-    FROM python:3.7.13-buster
-    WORKDIR /opt
-    CMD python myapp.py
-    ```
+```
+FROM python:3.7.13-buster
+WORKDIR /opt
+CMD python myapp.py
+```
 
 
 ## Managing your containers
