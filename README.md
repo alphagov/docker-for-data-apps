@@ -1,176 +1,143 @@
 # docker-for-data-apps
 
 
-## Who is this for
+## Who this is for
 
-Anyone who wants to create python apps that can be run outside of their local machine.
+This is for anyone who wants to create a python app that can be run outside of their local machine.
 
-## How Docker works
+
+## What Docker is
 
 Docker, like [virtualenv](https://pypi.org/project/virtualenv/), lets you create virtual environments on your machine to run your Python apps.
 
-However, while virtualenv only handles Python package versions, Docker creates environments that include everything needed to run your app. This includes the Python version, package versions, system libraries, and operating system.
+However, while virtualenv only ensures that you have the right package versions for your app, Docker also makes sure that you have the right python version, the right system libraries needed, and even the right operating system to run the app on (using a virtual machine). That way you can run your app on any other machine that has Docker installed, even if that machine runs a different operating system.
 
-You can use a file called `Dockerfile` to specify that your app is meant to run using, for example, Python 3.7.13 on a Debian buster VM. When Docker reads that file, it will:
+To do that, you need to create a file (usually called `Dockerfile`) to specify
+the environment you want to run your app in. For example, Python 3.7.13 on
+Debian buster. When Docker reads that file, it will:
 
 - create a Debian Buster virtual machine (VM)
-- install python 3.7.13 on the VM
-- install your python libraries as needed
+- install python 3.7.13 on it
+- install python libraries as needed
 - run your app
 
-Regardless of whether your computer (the host) runs Windows, OSX or Linux, Docker will create a VM (the guest) to run your application as you specified.
-
-This means that, if you distribute the Dockerfile along with your app's source code, Docker will make sure that your app runs in the same environment regardless of the host, as long as the host has Docker installed.
-
-This means that Hosts do not just have to be your local machine. They can be someone else's local machine, or a production server.
+Then you just need to distribute the Dockerfile along with your app's source code, and docker will be able to recreate the same environment on another computer, for instance someone else's local machine or a production server.
 
 
-======
+## Advantages of using docker
 
-Docker is essentially a generalisation of virtualenv: like virtualenv, docker
-lets you create environments on your machine, in which you can run your python
-apps. But while virtualenv only deals with python package versions, docker
-creates environments that include python version, package version, system
-libraries, all the way to the operating system on which to run the app.
-
-Through a file called `Dockerfile` you can specify that your app is meant to run
-using, for example, Python 3.7.13 on Debian buster.  When Docker reads that file
-it will create a Debian Buster virtual machine, install python 3.7.13 on it,
-install your python libraries as needed, and run your app. Whether your computer
-(the "host") runs Windows, OSX or Linux, docker will create a virtual machine
-(the "guest") as you specified, to run your application.
+- You do not need to install anything on your machine other than Docker.
+- You can share your work with colleagues or run the work in the Cloud.
+- You do not have to manage virtualenv, pyenv, system libraries, or anything else of that type.
 
 
-This means that if you distribute the Dockerfile along with your application's
-source code docker will make it sure that your application will run in the same
-environment, whatever the host as long as it has docker installed. Hosts can
-therefore be your other computer, your colleague's or a production server, for
-instance.
+## Disadvantages of using Docker
+
+- Docker adds a layer of abstraction on top of your existing environment.
+- You may find it more difficult to debug apps as they run in an enclosed environment.
+- For more complex apps, like ones that require databases, configuration can become complex.
+- Docker doesn't always manage to abstract away the hardware, so you might need to tweak your configuration so it works on different OSs
+
+Those disadvantages lessen as you get more familiar with docker.
 
 
-## Why use docker?
+## Docker basic concepts
 
-- So you don't need to install anything on your machine other than docker
-- So you can share your work with colleagues or run it in the cloud
-- So you don't have to deal with virtualenv, pyenv, system libraries, etc.
+In Docker, your apps run in a [container](https://www.docker.com/resources/what-container/). A container is a virtual machine (the "guest") that runs your app on your local machine (the "host"). Multiple containers can run simultaneously on the same host.
 
-## Any drawbacks?
+Containers are created from [images](https://docs.docker.com/get-started/overview/#images). An image is a template that describes a guest machine and the software installed on it. For example, Debian Buster with Python 3.7.13 installed.
 
-Small ones:
+You must create a Dockerfile to specify what your image contains, and what needs to happen when you create a container from that image.
 
-- Docker adds a layer of abstraction on top of your existing environment
-- Programs are sometimes harder to debug since they run in an enclosed environment
-- For more complex apps, like ones that require databases, configuration can become complex
+You use terminal commands to run docker. The most common ones are:
 
-Those drawback disappear as you get more familiar with docker.
+- `docker build` to create an image from a Dockerfile
+- `docker run` to start a container from a specified image
 
-## What do I need to know?
+Not that you will have to run both commands every time you change the Dockerfile
 
-Docker's basic principles are:
+## Getting started
 
-- your apps run in a _container_: a virtual machine that runs your application
-  on your computer. Multiple containers can run simultaneously on the same host
-  computer
+1. [Install Docker](https://docs.docker.com/get-docker/) on your local machine.
 
-- containers are created from _images_: templates that describe what software
-  will run in a container (for instance: Debian Buster + Python 3.7.13)
+1. Clone this repository and change your working directory to the one created by running `cd docker-for-data-apps`
 
-- you need to create a `Dockerfile` to specify what your image contains, and what needs to happen when you create a container from your image.
+1. Run the following terminal command to read the Dockerfile and create an image named `my_first_image`:
 
-You need to type terminal commands to run docker. The most common ones are:
-
-- `docker build`: creates an image from a `Dockerfile`
-- `docker run`: starts a container from a specified image
-
-## How do I get started
-
-- [Install Docker](https://docs.docker.com/get-docker/) on your machine
-
-- Create a folder and download the `Dockerfile` from this repository in it
-
-- run
-
+    ```
     docker build -t my_first_image .
+    ```
 
-  followed by
+    The `.` at the end of the command means "look for the Dockerfile in this directory".
 
+1. Run the following to start a container from the image you created:
+
+    ```
     docker run -i -v $(pwd):/opt -p 8080:8080 my_first_image
+    ```
+
+The `-i` argument specifies that the container will be interactive, which we need to do because our container will run `bash`.
+
+Containers are virtual machines, so they have their own files. By default those files are invisible to the host. Likewise, the host's files are invisible to the container. We need to change that if we want to be able to edit files with our usual text editor on the host. The `-v $(pwd):/opt` argument does that. It says: make all the files that are in the current directory of the host available to the container in the `/opt` directory.
+
+The `-p 8080:8080` argument is similar to the `-v $(pwd):/opt` argument, but for the network. By default, if your code starts a web server, that web server  will only be available in the container, and you will not be able to access it from a browser running on the host. This argument solves that by specifying that any web service that starts in the container and that responds to port 8080 (that is, you would use `http://localhost:8080` to see it) is also available from the host at the same port. Therefore you can now point your browser at that URL and you'll see the web service running inside your container.
 
 
-You've now got a container running, within which you can type commands. Try:
+You've now got a container running, within which you can type commands.
 
-    python -V
+Run `python -V` to check your Python version. You should see the output `3.7.13`.
 
-and you'll see 3.7.13.
+And since the `-v` argument makes your source code visible to your container, you can just run your app from the bash prompt:
 
-This is where your app will run.
+    ```
+    python myapp.py
+    ```
 
-
-Let's examine that `Dockerfile`. It's only 3 lines long if we remove the comments:
-
-```
-FROM python:3.7.13-buster
-WORKDIR /opt
-CMD /bin/bash
-```
-
-- The first line says: this image will be based on a public image called
-  `python:3.7.13-buster` available on the docker site.  That image gives us
-  python 3.7.13 on a Debian Buster virtual machine. There are hundreds of
-  existing images to choose from, including any Python version.
-
-- This says tells docker that the container will find the application files in the `/opt` directory inside the container.
-  See below for details.
+should print "Hello world".
 
 
-- The third line means: when a container is instantiated from this image, make it run the
-  command `/bin/bash`, which is why you got a command prompt once you execute `docker run`.
+### Understanding the Dockerfile
+
+The example Dockerfile in this repository contains 3 lines of code, excluding the comments:
+
+    ```
+    FROM python:3.7.13-buster
+    WORKDIR /opt
+    CMD /bin/bash
+    ```
+
+The first line says this image will be based on a public image called `python:3.7.13-buster`, available on the Docker site. That image gives us Python 3.7.13 on a Debian Buster virtual machine. There are hundreds of existing images to choose from, including most Python versions.
+
+The second line tells Docker that the container will find the app files in the `/opt` directory inside the container.
+
+The third line says when a container is instantiated from this image, make the container run the command `/bin/bash`. This is why you got a command prompt when you ran `docker run`.
 
 
-Now let's look at the docker commands we've just run:
+## Writing your app
 
-    docker build -t my_first_image .
+To write your app, you must create and edit source code files in the same directory as the Dockerfile.
 
-As we've seen, this reads the Dockerfile and creates the image. `-t my_first_image` gives the image a name,
-which we'll refer to when building containers based on this image. And do include the `.` at the end of the command, as
-it means "look for the Dockerfile in this directory"
+Then run your usual commands (for example, `python myapp.py`) in the terminal running inside your container.
 
-    docker run -i -v $(pwd):/opt -p 8080:8080 my_first_image
+When you're finished and want to share your app, send the Dockerfile along with your source code to the person you want to share the app with. The recipient will need to run the same commands as you to run the app. In general, you'll change the Dockerfile so when a container starts, it starts the app directly, instead of running `bash`:
 
-This creates and starts a container using the "my_first_image" image that we created above. Here's what each argument means:
-
-- `-i` : because our container will run `bash`, we need to specify it will need to be "interactive"
-
-- `-v $(pwd):/opt` : we said above that, by default, containers are black boxes: they have their own files, network, etc.
-  Obviously we won't get very far if we don't change that. And so this argument means: make all the files that are in the current directory
-  of the host (for instance, `/Users/maxfroumentin/Documents/docker-for-data-apps`) available to the container in the `/opt` directory.
-  This means that we can create or edit files on our machine using our normal text editor and those files will be visible in the
-  container, in `/opt`
-
-- `-p 8080:8080` : is the same thing, but for the network. By default, if your code starts a web server it will only be available in the container and you won't be able to access it from a browser running on the host. This argument solves that by specifying that any web service that starts in the container and that responds to port 8080 (i.e. you would use http://localhost:8080 to see it) is also available from the host, at the same port. Therefore you can now point your browser at that URL and you'll see the web service running inside your container.
+    ```
+    FROM python:3.7.13-buster
+    WORKDIR /opt
+    CMD python myapp.py
+    ```
 
 
-## So how do I write my app?
+## Managing your containers
 
-You can just edit files in the same folder as the Dockerfile, then in the
-terminal running inside your container, you run your usual commands, like
-`python myapp.py`. And when you're finished and want to share the outcome, you
-just need to send the Dockerfile along with your source code, and the recipient
-will just need to run the same commands as you in order to run the app.
-
-## How do I manage my containers?
-
-the `docker` command includes many other options, to list, stop, restart or terminate containers. You can also manage the images installed on your system. The most used are:
+The `docker` command has many options to list, stop, restart or terminate containers. You can also manage the images installed on your system. The most common commands are:
 
 - `docker ps` to list all the containers on your system
-- `docker stop [container ID]`
+- `docker stop [container ID]` to stop a container
 - `docker rm [container ID]` to delete a container
 - `docker images` to list all the images installed on your system
 - `docker rmi [image ID]` to delete an image
 
-## How do I learn more?
+## Further information
 
-- By now you'll have learned enough about docker that you'll know what to google for if you have a problem
-- You can also look at the official [docker reference
-  documentation](https://docs.docker.com/reference/) and lots of online
-  tutorials.
+See the [official docker reference documentation](https://docs.docker.com/reference/) for more information.
