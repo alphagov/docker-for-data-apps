@@ -1,11 +1,31 @@
 # docker-for-data-apps
 
 
-## Who is this for?
+## Who is this for
 
-Anyone who wants to create python apps that can be run elsewhere than their own computer.
+Anyone who wants to create python apps that can be run outside of their local machine.
 
-## How does it work?
+## How Docker works
+
+Docker, like [virtualenv](https://pypi.org/project/virtualenv/), lets you create virtual environments on your machine to run your Python apps.
+
+However, while virtualenv only handles Python package versions, Docker creates environments that include everything needed to run your app. This includes the Python version, package versions, system libraries, and operating system.
+
+You can use a file called `Dockerfile` to specify that your app is meant to run using, for example, Python 3.7.13 on a Debian buster VM. When Docker reads that file, it will:
+
+- create a Debian Buster virtual machine (VM)
+- install python 3.7.13 on the VM
+- install your python libraries as needed
+- run your app
+
+Regardless of whether your computer (the host) runs Windows, OSX or Linux, Docker will create a VM (the guest) to run your application as you specified.
+
+This means that, if you distribute the Dockerfile along with your app's source code, Docker will make sure that your app runs in the same environment regardless of the host, as long as the host has Docker installed.
+
+This means that Hosts do not just have to be your local machine. They can be someone else's local machine, or a production server.
+
+
+======
 
 Docker is essentially a generalisation of virtualenv: like virtualenv, docker
 lets you create environments on your machine, in which you can run your python
