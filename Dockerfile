@@ -18,7 +18,7 @@
 # 1. create the image from this file with:
 #   "docker build -t my_image ."
 #   (including the dot at the end, which specifies where to find the Dockerfile)
-    "-t my_image" means: call this image "my_image"
+#   "-t my_image" means: call this image "my_image"
 #
 # 2. create and run the container with:
 #   "docker run -i -v $(pwd):/opt -p 8080:8080 my_image"
