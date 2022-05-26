@@ -70,13 +70,16 @@ Not that you will have to run both commands every time you change the Dockerfile
 
     The `.` at the end of the command means "look for the Dockerfile in this directory".
 
+
+    *Important note*: if you have an M1 Mac, docker isn't quite working for the M1 architecture yet. However if you add the `--platform linux/amd64` flag to this command, you can tell your local docker to retrieve and build images using the `linux/amd64` platform, which has better support (at the time of this writing).
+
 1. Run the following to start a container from the image you created:
 
     ```
-    docker run -i -v $(pwd):/opt -p 8080:8080 my_first_image
+    docker run -ti -v $(pwd):/opt -p 8080:8080 my_first_image
     ```
 
-The `-i` argument specifies that the container will be interactive, which we need to do because our container will run `bash`.
+The `-ti` argument specifies that the container will be interactive, which we need to do because our container will run `bash`.
 
 Containers are virtual machines, so they have their own files. By default those files are invisible to the host. Likewise, the host's files are invisible to the container. We need to change that if we want to be able to edit files with our usual text editor on the host. The `-v $(pwd):/opt` argument does that. It says: make all the files that are in the current directory of the host available to the container in the `/opt` directory.
 
